@@ -24,9 +24,10 @@ export default function Board() {
     navigate("/");
   };
 
-  useEffect(() => {
-    fetchTasks();
-  }, [id]);
+ useEffect(() => {
+  fetchTasks();
+  // eslint-disable-next-line
+}, [id]);
 
   const fetchTasks = async () => {
     const res = await API.get(`/tasks/${id}`);
