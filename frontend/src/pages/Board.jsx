@@ -17,36 +17,51 @@ export default function Board() {
 
   const columns = ["todo", "doing", "done"];
 
+  // ✅ TOKEN
+  const token = localStorage.getItem("token");
+
   // ✅ LOGOUT FUNCTION
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
 
-  // ✅ FIXED: fetchTasks with useCallback
+  // ✅ FIXED: API PATH + TOKEN
   const fetchTasks = useCallback(async () => {
     try {
-      const res = await API.get(`/tasks/${id}`);
+      const res = await API.get(`/api/tasks/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setTasks(res.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
-  }, [id]);
+  }, [id, token]);
 
-  // ✅ FIXED: useEffect dependency
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
+  // ✅ FIXED: API PATH + TOKEN
   const addTask = async () => {
     if (!newTask.trim()) return;
 
     try {
-      await API.post("/tasks", {
-        title: newTask,
-        status: "todo",
-        boardId: id,
-      });
+      await API.post(
+        "/api/tasks",
+        {
+          title: newTask,
+          status: "todo",
+          boardId: id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setNewTask("");
       fetchTasks();
@@ -55,22 +70,36 @@ export default function Board() {
     }
   };
 
+  // ✅ FIXED: API PATH + TOKEN
   const deleteTask = async (taskId) => {
     try {
-      await API.delete(`/tasks/${taskId}`);
+      await API.delete(`/api/tasks/${taskId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       fetchTasks();
     } catch (error) {
       console.error("Error deleting task:", error);
     }
   };
 
+  // ✅ FIXED: API PATH + TOKEN
   const onDragEnd = async (result) => {
     if (!result.destination) return;
 
     try {
-      await API.put(`/tasks/${result.draggableId}`, {
-        status: result.destination.droppableId,
-      });
+      await API.put(
+        `/api/tasks/${result.draggableId}`,
+        {
+          status: result.destination.droppableId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       fetchTasks();
     } catch (error) {
