@@ -8,7 +8,10 @@ export default function Dashboard() {
   const [boards, setBoards] = useState([]);
   const [newBoard, setNewBoard] = useState("");
 
-  // ✅ LOGOUT FUNCTION (ADD THIS)
+  // ✅ GET TOKEN
+  const token = localStorage.getItem("token");
+
+  // ✅ LOGOUT FUNCTION
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
@@ -18,32 +21,63 @@ export default function Dashboard() {
     fetchBoards();
   }, []);
 
+  // ✅ FIXED API + TOKEN
   const fetchBoards = async () => {
-    const res = await API.get("/boards");
-    setBoards(res.data);
+    try {
+      const res = await API.get("/api/boards", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setBoards(res.data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
   };
 
+  // ✅ FIXED API + TOKEN
   const addBoard = async () => {
     if (!newBoard.trim()) return;
 
-    await API.post("/boards", { title: newBoard });
-    setNewBoard("");
-    fetchBoards();
+    try {
+      await API.post(
+        "/api/boards",
+        { title: newBoard },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setNewBoard("");
+      fetchBoards();
+    } catch (err) {
+      console.error("Add error:", err);
+    }
   };
 
+  // ✅ FIXED API + TOKEN
   const deleteBoard = async (id) => {
-    await API.delete(`/boards/${id}`);
-    fetchBoards();
+    try {
+      await API.delete(`/api/boards/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      fetchBoards();
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
   return (
     <div
       className="min-h-screen p-8 bg-cover bg-center"
       style={{
-        backgroundImage: `url(${bgImage})`,
+        backgroundImage: bgImage ? `url(${bgImage})` : "none",
       }}
     >
-      {/* ✅ HEADER WITH LOGOUT */}
+      {/* HEADER WITH LOGOUT */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl text-white font-bold">
           Your Boards
@@ -57,6 +91,7 @@ export default function Dashboard() {
         </button>
       </div>
 
+      {/* ADD BOARD */}
       <div className="mb-6 flex gap-3">
         <input
           value={newBoard}
@@ -73,6 +108,7 @@ export default function Dashboard() {
         </button>
       </div>
 
+      {/* BOARD LIST */}
       <div className="grid grid-cols-3 gap-6">
         {boards.map((board) => (
           <div
