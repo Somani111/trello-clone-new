@@ -14,7 +14,7 @@ const app = express();
 
 // ✅ CORRECT CORS (ONLY THIS, remove duplicate)
 app.use(cors({
-  origin: "https://trello-clone18.netlify.app", // frontend URL
+  origin: "*", // frontend URL
   credentials: true
 }));
 
